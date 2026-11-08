@@ -37,7 +37,7 @@ Exported 2026-10-04 from the `support` repo, `apps/kb/` → `src/`.
 
 ## Building the pages
 
-Added with the page `kb/incidents/4471/problems` (signed: Daniel Ariel). The export had no build setup, so this repo adds a minimal SvelteKit 3 + mdsvex one:
+Added with the page `kb/incidents/4471/problems` (author: Daniel Ariel; signed with the course ticket). The export had no build setup, so this repo adds a minimal SvelteKit 3 + mdsvex one:
 
 ```
 npm install

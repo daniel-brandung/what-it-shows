@@ -4,7 +4,8 @@ title: '#4471 · what the reports show'
 owner: support desk
 status: open
 reviewed: 2026-11-08
-signature: Daniel Ariel
+signature: v1.eyJzdWIiOiIxMzkyNSIsImF1ZCI6ImNoYWxsZW5nZTp3aGF0LWl0LXNob3dzIiwiaWF0IjoxNzk0MTY3MDkzLCJleHAiOjE3OTQyNTM0OTN9.FTxx9p6e20YKauvzu7sdfCpZj5pqzZCWHf53_tUtd4A
+author: Daniel Ariel
 ---
 
 <script>
