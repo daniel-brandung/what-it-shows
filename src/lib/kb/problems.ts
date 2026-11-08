@@ -1,12 +1,13 @@
-// Which problem each report in a merged ticket shows. Pages explain it; this file is what runs.
+// Which problems a merged ticket holds, counted the way the desk counts. Pages explain it; this file is what runs.
 //
-// causes.ts places a report by its tenant: `parser` or `hint`. The desk's own notes
-// (desk-notes.json) mark reports whose date moved by one day. No tenant setting explains a one-day
-// move, and a month flip never moves a date by one day, so those reports are a problem of their own.
+// The desk's own view (CauseTable) counts every report under its cause, by tenant: `parser` or `hint`
+// (causes.ts). The desk's notes (desk-notes.json) mark reports it read as a one-day move. Those stay
+// counted where they are filed, as the cause table does. They also get a row of their own, because no
+// tenant setting explains a one-day move and a month flip never moves a date by one day.
 import notes from '#lib/data/desk-notes.json';
-import { causeOf, uniqueById, type Report, type Tenant } from '#lib/kb/causes';
+import { causeOf, groupByCause, uniqueById, type Cause, type Report, type Tenant } from '#lib/kb/causes';
 
-export type Problem = 'parser' | 'hint' | 'one-day' | 'unplaced';
+export type Problem = Cause | 'one-day' | 'unplaced';
 
 // What each problem looks like from the desk, in one line.
 export const PROBLEM_LINE: Record<Problem, string> = {
@@ -15,11 +16,6 @@ export const PROBLEM_LINE: Record<Problem, string> = {
   'one-day': 'The date moves by one day, not by a month flip: a time-zone shift.',
   unplaced: 'No tenant on file, so no cause can be told.',
 };
-
-export function problemOf(r: Report, t: Tenant | undefined): Problem {
-  if (notes.oneDayMove.includes(r.id)) return 'one-day';
-  return causeOf(r, t) ?? 'unplaced';
-}
 
 // One id, one report, and only the reports merged into this ticket.
 export function mergedInto(reports: Report[], ticket: number): Report[] {
@@ -33,41 +29,47 @@ export type ProblemGroup = {
   channels: Record<string, number>;
   firstSeen: string;
   lastSeen: string;
+  // Reports in this group that the desk read as a one-day move (they also count under `one-day`).
+  readAsOneDay: number;
 };
 
-export function groupByProblem(reports: Report[], tenantOf: (r: Report) => Tenant | undefined): ProblemGroup[] {
-  const byProblem = new Map<Problem, Report[]>();
-  for (const r of reports) {
-    const p = problemOf(r, tenantOf(r));
-    byProblem.set(p, [...(byProblem.get(p) ?? []), r]);
-  }
-  return [...byProblem.entries()]
-    .map(([problem, rs]) => {
-      const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();
-      return {
-        problem,
-        reports: rs,
-        tenants: [...new Set(rs.map((r) => r.tenant))].sort(),
-        channels: rs.reduce<Record<string, number>>((n, r) => ({ ...n, [r.channel]: (n[r.channel] ?? 0) + 1 }), {}),
-        firstSeen: days[0],
-        lastSeen: days[days.length - 1],
-      };
-    })
-    .sort((a, b) => b.reports.length - a.reports.length);
+function group(problem: Problem, rs: Report[]): ProblemGroup {
+  const days = rs.map((r) => r.receivedAt.slice(0, 10)).sort();
+  return {
+    problem,
+    reports: rs,
+    tenants: [...new Set(rs.map((r) => r.tenant))].sort(),
+    channels: rs.reduce<Record<string, number>>((n, r) => ({ ...n, [r.channel]: (n[r.channel] ?? 0) + 1 }), {}),
+    firstSeen: days[0],
+    lastSeen: days[days.length - 1],
+    readAsOneDay: problem === 'one-day' ? 0 : rs.filter((r) => notes.oneDayMove.includes(r.id)).length,
+  };
 }
 
-// Subject line → reports per problem. Decision 0001 merges on the subject alone.
+export function groupByProblem(reports: Report[], tenantOf: (r: Report) => Tenant | undefined): ProblemGroup[] {
+  const causes = groupByCause(reports, tenantOf).map((g) => group(g.cause, g.reports));
+  const moved = reports.filter((r) => notes.oneDayMove.includes(r.id));
+  return moved.length ? [...causes, group('one-day', moved)] : causes;
+}
+
+// How many reports count in two rows: filed under their cause, read as a one-day move.
+export function countedTwice(groups: ProblemGroup[]): number {
+  return groups.reduce((n, g) => n + g.readAsOneDay, 0);
+}
+
+// Subject line → reports per problem, counted like the table above. Decision 0001 merges on the subject alone.
 export type SubjectRow = { subject: string; total: number; byProblem: Partial<Record<Problem, number>>; problems: number };
 
 export function subjectSpread(reports: Report[], tenantOf: (r: Report) => Tenant | undefined): SubjectRow[] {
   const key = (s: string) => s.toLowerCase().replace(/[^\p{L}\p{N}\s]/gu, '').trim();
   const rows = new Map<string, SubjectRow>();
+  const add = (row: SubjectRow, p: Problem) => (row.byProblem[p] = (row.byProblem[p] ?? 0) + 1);
   for (const r of reports) {
     const k = key(r.subject);
     const row = rows.get(k) ?? { subject: r.subject, total: 0, byProblem: {}, problems: 0 };
-    const p = problemOf(r, tenantOf(r));
     row.total++;
-    row.byProblem[p] = (row.byProblem[p] ?? 0) + 1;
+    add(row, causeOf(r, tenantOf(r)) ?? 'unplaced');
+    if (notes.oneDayMove.includes(r.id)) add(row, 'one-day');
     row.problems = Object.keys(row.byProblem).length;
     rows.set(k, row);
   }

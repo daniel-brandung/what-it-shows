@@ -18,28 +18,38 @@ signature: Daniel Ariel
 
 [#4471](/kb/incidents/4471) was merged as one issue: the parser reads dates month first. Read
 report by report, its <ProblemCount ticket={4471} /> reports show
-<ProblemCount ticket={4471} of="problems" /> different problems. Each one now has a ticket of
-its own.
+<ProblemCount ticket={4471} of="problems" /> different problems. Each one has a ticket of its own.
 
 <ProblemTable ticket={4471} {tickets} />
 
+## Where it stands
+
+Engineering closed #4471 on 5 October with two outcomes:
+
+- <code>parser</code>: fixed by <code>fix(dates): parse dd/mm for eu locales</code>. Its ticket is
+  closed as completed.
+- <code>hint</code>: won't fix, because the booking-v3 form is retired. Its ticket is closed as
+  not planned.
+
 <Callout kind="warn">
-#4471 is not one issue with one fix. The parser fix closes only the <code>parser</code> row. The
-other rows stay broken after it ships.
+#4471 is closed, but not everything in it is fixed. The engineering update does not mention the
+<code>one-day</code> row, and neither change moves a date back by one day. Its ticket stays open.
 </Callout>
 
-## How the reports were told apart
+## How the reports were counted
 
-Every count on this page comes from the reports at render time. Nothing here is typed in.
+Every count on this page comes from the reports at render time, the way the desk's own cause table
+counts them. Nothing here is typed in.
 
 1. **One id, one report.** The ticket export repeats some reports across its pages.
    `uniqueById` counts each report once.
 2. **The tenant decides the cause, not the reporter's browser.** `causes.ts` asks each tenant's
    locale and booking form. A report from a day-first tenant that came in through booking-v3's
    form is `hint`. Any other report from a day-first tenant is `parser`.
-3. **A one-day move is not a month flip.** The desk's notes (`desk-notes.json`) already mark the
-   reports whose date moved by one day. The cause table files them under `parser` and footnotes
-   them. Here they get their own row and their own ticket.
+3. **A one-day move gets its own row.** The desk's notes (`desk-notes.json`) mark the reports
+   whose date moved by one day. The cause table keeps them counted where they are filed, under
+   `parser`, and so does this page. They also count under `one-day`, so
+   <ProblemCount ticket={4471} of="twice" /> reports appear in two rows.
 
 ## parser
 
@@ -49,18 +59,17 @@ Every count on this page comes from the reports at render time. Nothing here is 
 every tenant here writes the day first. Only dates with a day of 12 or less can flip, which is why
 it looks random to the people reporting it.
 
-**Fix:** parse dates in the tenant's locale, not month first.
+**Fix:** parse dates in the tenant's locale, not month first. Shipped with #4471.
 
 ## hint
 
 <ProblemCount ticket={4471} problem="hint" /> reports from
 <ProblemCount ticket={4471} problem="hint" of="tenants" /> tenants, all through the booking form,
-all at tenants on booking-v3. The symptom is the same swap, so it looks like <code>parser</code>. The cause is
-different: booking-v3 prints <code>MM/DD/YYYY</code> under its date field. People type what the hint tells
-them, month first, and the form reads it the tenant's way, day first.
+all at tenants on booking-v3. The symptom is the same swap, so it looks like <code>parser</code>.
+The cause is different: booking-v3 prints <code>MM/DD/YYYY</code> under its date field. People
+type what the hint tells them, month first, and the form reads it the tenant's way, day first.
 
-**Fix:** make booking-v3's hint and its reading agree (show <code>DD/MM/YYYY</code> for day-first tenants).
-A parser fix does not reach these reports.
+**Fix:** none planned. The booking-v3 form is retired, so no new reports can come from it.
 
 ## one-day
 
@@ -71,7 +80,7 @@ in Toronto got Monday." "The invite arrived before I made the booking." No day a
 gives a one-day move. This points at time zones: a date-only value converted through UTC or the
 reader's zone.
 
-**Fix:** keep booking dates as calendar dates, and convert only times, in the tenant's zone.
+**Fix:** open. Keep booking dates as calendar dates, and convert only times, in the tenant's zone.
 
 ## Why one ticket hid them
 

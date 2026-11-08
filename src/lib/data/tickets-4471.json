@@ -1,5 +1,23 @@
 {
-  "parser": { "number": 1, "url": "https://github.com/daniel-brandung/what-it-shows/issues/1" },
-  "hint": { "number": 2, "url": "https://github.com/daniel-brandung/what-it-shows/issues/2" },
-  "one-day": { "number": 3, "url": "https://github.com/daniel-brandung/what-it-shows/issues/3" }
+  "parser": {
+    "number": 1,
+    "url": "https://github.com/daniel-brandung/what-it-shows/issues/1",
+    "state": "closed",
+    "reason": "completed",
+    "why": "fix(dates): parse dd/mm for eu locales"
+  },
+  "hint": {
+    "number": 2,
+    "url": "https://github.com/daniel-brandung/what-it-shows/issues/2",
+    "state": "closed",
+    "reason": "not planned",
+    "why": "booking-v3 form retired"
+  },
+  "one-day": {
+    "number": 3,
+    "url": "https://github.com/daniel-brandung/what-it-shows/issues/3",
+    "state": "open",
+    "reason": null,
+    "why": "not in the engineering update; no fix yet"
+  }
 }
