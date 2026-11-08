@@ -1,0 +1,86 @@
+---
+layout: runbook
+title: '#4471 · what the reports show'
+owner: support desk
+status: open
+reviewed: 2026-11-08
+signature: Daniel Ariel
+---
+
+<script>
+  import ProblemTable from '#lib/kb/ProblemTable.svelte';
+  import ProblemCount from '#lib/kb/ProblemCount.svelte';
+  import SubjectSpread from '#lib/kb/SubjectSpread.svelte';
+  import Callout from '#lib/kb/Callout.svelte';
+  import RenderStamp from '#lib/kb/RenderStamp.svelte';
+  import tickets from '#lib/data/tickets-4471.json';
+</script>
+
+[#4471](/kb/incidents/4471) was merged as one issue: the parser reads dates month first. Read
+report by report, its <ProblemCount ticket={4471} /> reports show
+<ProblemCount ticket={4471} of="problems" /> different problems. Each one now has a ticket of
+its own.
+
+<ProblemTable ticket={4471} {tickets} />
+
+<Callout kind="warn">
+#4471 is not one issue with one fix. The parser fix closes only the <code>parser</code> row. The
+other rows stay broken after it ships.
+</Callout>
+
+## How the reports were told apart
+
+Every count on this page comes from the reports at render time. Nothing here is typed in.
+
+1. **One id, one report.** The ticket export repeats some reports across its pages.
+   `uniqueById` counts each report once.
+2. **The tenant decides the cause, not the reporter's browser.** `causes.ts` asks each tenant's
+   locale and booking form. A report from a day-first tenant that came in through booking-v3's
+   form is `hint`. Any other report from a day-first tenant is `parser`.
+3. **A one-day move is not a month flip.** The desk's notes (`desk-notes.json`) already mark the
+   reports whose date moved by one day. The cause table files them under `parser` and footnotes
+   them. Here they get their own row and their own ticket.
+
+## parser
+
+<ProblemCount ticket={4471} problem="parser" /> reports from
+<ProblemCount ticket={4471} problem="parser" of="tenants" /> tenants. Day and month swap:
+"Our 7 April reminder went out on 4 July." The shared parser reads every date month first, and
+every tenant here writes the day first. Only dates with a day of 12 or less can flip, which is why
+it looks random to the people reporting it.
+
+**Fix:** parse dates in the tenant's locale, not month first.
+
+## hint
+
+<ProblemCount ticket={4471} problem="hint" /> reports from
+<ProblemCount ticket={4471} problem="hint" of="tenants" /> tenants, all through the booking form,
+all at tenants on booking-v3. The symptom is the same swap, so it looks like <code>parser</code>. The cause is
+different: booking-v3 prints <code>MM/DD/YYYY</code> under its date field. People type what the hint tells
+them, month first, and the form reads it the tenant's way, day first.
+
+**Fix:** make booking-v3's hint and its reading agree (show <code>DD/MM/YYYY</code> for day-first tenants).
+A parser fix does not reach these reports.
+
+## one-day
+
+<ProblemCount ticket={4471} problem="one-day" /> reports from
+<ProblemCount ticket={4471} problem="one-day" of="tenants" /> tenants. The date moves by one day,
+and two people at the same meeting can get different days: "Client in Lisbon got Tuesday. Client
+in Toronto got Monday." "The invite arrived before I made the booking." No day and month swap
+gives a one-day move. This points at time zones: a date-only value converted through UTC or the
+reader's zone.
+
+**Fix:** keep booking dates as calendar dates, and convert only times, in the tenant's zone.
+
+## Why one ticket hid them
+
+[Decision 0001](/kb/decisions/0001-dedupe-by-subject) merges reports whose subject lines match.
+People describe all of these problems with the same words, so the subject cannot tell them apart:
+
+<SubjectSpread ticket={4471} />
+
+Intake's tag does not help either. It guesses from the reporter's browser, and the cause depends on
+the tenant. Reports that need a different fix need their own ticket, even when their subjects match.
+
+<RenderStamp {signature} />

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link href="../../../_app/immutable/entry/start.BPcehJr-.js" rel="modulepreload">
+		<link href="../../../_app/immutable/entry/payload.DSmR2FwN.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/DclECHGd.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/CptVIHXj.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/CHfFqfNT.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/DQG8lHS1.js" rel="modulepreload">
+		<link href="../../../_app/immutable/entry/app.BbZ7SP4k.js" rel="modulepreload">
+		<link href="../../../_app/immutable/nodes/0.Izv2btRW.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/DK3Fl9T5.js" rel="modulepreload">
+		<link href="../../../_app/immutable/nodes/5.DG9BxflN.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/DYBL7pB9.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/DkoUumqI.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/CVBzP17p.js" rel="modulepreload">
+		<link href="../../../_app/immutable/chunks/DcZ9TEUN.js" rel="modulepreload">
+		<!--e2jw2j--><!----><title>#4471 · what the reports show · support kb</title>
+		<link href="../../../_app/immutable/assets/runbook.COyw0cbZ.css" rel="stylesheet">
+		<link href="../../../_app/immutable/assets/Callout.AbLv9dM_.css" rel="stylesheet">
+		<link href="../../../_app/immutable/assets/_page.CJPluj4V.css" rel="stylesheet">
+  </head>
+  <body data-sveltekit-preload-data="hover">
+    <div style="display: contents"><!--[--><!--[--><!--[0--><!--[--><!--[--><!--[-1--><!--[--><div class="kb svelte-e2jw2j"><header><a class="crumb svelte-e2jw2j" href="/kb">support desk · kb</a> <h1 class="svelte-e2jw2j">#4471 · what the reports show</h1> <p class="meta svelte-e2jw2j"><span>owner <b>support desk</b></span> <span class="status open svelte-e2jw2j">open</span> <span class="svelte-e2jw2j">reviewed 2026-11-08 · 0 days ago</span></p></header> <!--[-1--><!--]--> <main><p><a href="/kb/incidents/4471">#4471</a> was merged as one issue: the parser reads dates month first. Read
+report by report, its <strong class="count svelte-lot53f">412</strong><!----> reports show</p> <strong class="count svelte-lot53f">3</strong><!----> different problems. Each one now has a ticket of
+its own. <p class="sum svelte-1op6c6"><strong>412</strong> reports merged into #4471 · <strong>3</strong> problems</p> <table><thead><tr><th>problem</th><th>reports</th><th>tenants</th><th>came in by</th><th>seen</th><th>ticket</th></tr></thead><tbody><!--[--><tr><td><code>parser</code><br/><span class="line svelte-1op6c6">The shared parser reads a day-first tenant's dates month first: day and month swap.</span></td><td class="n svelte-1op6c6">374</td><td class="n svelte-1op6c6">11</td><td class="muted svelte-1op6c6">app ×202 · email ×147 · form ×25</td><td class="muted svelte-1op6c6">2026-04-01 → 2026-10-04</td><td><!--[-1--><span class="none svelte-1op6c6">no ticket</span><!--]--></td></tr><tr><td><code>hint</code><br/><span class="line svelte-1op6c6">booking-v3's form tells people to type MM/DD/YYYY, then reads what they typed day first.</span></td><td class="n svelte-1op6c6">33</td><td class="n svelte-1op6c6">3</td><td class="muted svelte-1op6c6">form ×33</td><td class="muted svelte-1op6c6">2026-04-17 → 2026-09-22</td><td><!--[-1--><span class="none svelte-1op6c6">no ticket</span><!--]--></td></tr><tr><td><code>one-day</code><br/><span class="line svelte-1op6c6">The date moves by one day, not by a month flip: a time-zone shift.</span></td><td class="n svelte-1op6c6">5</td><td class="n svelte-1op6c6">5</td><td class="muted svelte-1op6c6">email ×3 · app ×2</td><td class="muted svelte-1op6c6">2026-04-02 → 2026-10-04</td><td><!--[-1--><span class="none svelte-1op6c6">no ticket</span><!--]--></td></tr><!--]--></tbody></table><!----> <aside class="warn svelte-17bri61"><!---->#4471 is not one issue with one fix. The parser fix closes only the <code>parser</code> row. The
+other rows stay broken after it ships.<!----></aside><!----> <h2>How the reports were told apart</h2> <p>Every count on this page comes from the reports at render time. Nothing here is typed in.</p> <ol><li><strong>One id, one report.</strong> The ticket export repeats some reports across its pages. <code>uniqueById</code> counts each report once.</li> <li><strong>The tenant decides the cause, not the reporter’s browser.</strong> <code>causes.ts</code> asks each tenant’s
+locale and booking form. A report from a day-first tenant that came in through booking-v3’s
+form is <code>hint</code>. Any other report from a day-first tenant is <code>parser</code>.</li> <li><strong>A one-day move is not a month flip.</strong> The desk’s notes (<code>desk-notes.json</code>) already mark the
+reports whose date moved by one day. The cause table files them under <code>parser</code> and footnotes
+them. Here they get their own row and their own ticket.</li></ol> <h2>parser</h2> <strong class="count svelte-lot53f">374</strong><!----> reports from <strong class="count svelte-lot53f">11</strong><!----> tenants. Day and month swap:
+"Our 7 April reminder went out on 4 July." The shared parser reads every date month first, and
+every tenant here writes the day first. Only dates with a day of 12 or less can flip, which is why
+it looks random to the people reporting it. <p><strong>Fix:</strong> parse dates in the tenant’s locale, not month first.</p> <h2>hint</h2> <strong class="count svelte-lot53f">33</strong><!----> reports from <strong class="count svelte-lot53f">3</strong><!----> tenants, all through the booking form,
+all at tenants on booking-v3. The symptom is the same swap, so it looks like <code>parser</code>. The cause is
+different: booking-v3 prints <code>MM/DD/YYYY</code> under its date field. People type what the hint tells
+them, month first, and the form reads it the tenant's way, day first. <p><strong>Fix:</strong> make booking-v3’s hint and its reading agree (show <code>DD/MM/YYYY</code> for day-first tenants).
+A parser fix does not reach these reports.</p> <h2>one-day</h2> <strong class="count svelte-lot53f">5</strong><!----> reports from <strong class="count svelte-lot53f">5</strong><!----> tenants. The date moves by one day,
+and two people at the same meeting can get different days: "Client in Lisbon got Tuesday. Client
+in Toronto got Monday." "The invite arrived before I made the booking." No day and month swap
+gives a one-day move. This points at time zones: a date-only value converted through UTC or the
+reader's zone. <p><strong>Fix:</strong> keep booking dates as calendar dates, and convert only times, in the tenant’s zone.</p> <h2>Why one ticket hid them</h2> <p><a href="/kb/decisions/0001-dedupe-by-subject">Decision 0001</a> merges reports whose subject lines match.
+People describe all of these problems with the same words, so the subject cannot tell them apart:</p> <p class="sum svelte-1uqs1mu"><strong>10</strong> of <strong>12</strong> subject lines carry more than one problem.</p> <table><thead><tr><th>subject</th><!--[--><th><code>parser</code></th><th><code>hint</code></th><th><code>one-day</code></th><!--]--></tr></thead><tbody><!--[--><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Wrong day on the invite</td><!--[--><td class="n svelte-1uqs1mu">44</td><td class="n svelte-1uqs1mu">5</td><td class="n svelte-1uqs1mu">1</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Month and day swapped?</td><!--[--><td class="n svelte-1uqs1mu">44</td><td class="n svelte-1uqs1mu">4</td><td class="n svelte-1uqs1mu">1</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Reminder went out on the wrong day</td><!--[--><td class="n svelte-1uqs1mu">33</td><td class="n svelte-1uqs1mu">3</td><td class="n svelte-1uqs1mu">1</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Date is wrong</td><!--[--><td class="n svelte-1uqs1mu">31</td><td class="n svelte-1uqs1mu">2</td><td class="n svelte-1uqs1mu">1</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Client turned up on the wrong day</td><!--[--><td class="n svelte-1uqs1mu">18</td><td class="n svelte-1uqs1mu">3</td><td class="n svelte-1uqs1mu">1</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Invite came on the wrong day</td><!--[--><td class="n svelte-1uqs1mu">45</td><td class="n svelte-1uqs1mu">5</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Booking on the wrong date</td><!--[--><td class="n svelte-1uqs1mu">39</td><td class="n svelte-1uqs1mu">1</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Wrong date again</td><!--[--><td class="n svelte-1uqs1mu">33</td><td class="n svelte-1uqs1mu">1</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Calendar invite is wrong</td><!--[--><td class="n svelte-1uqs1mu">24</td><td class="n svelte-1uqs1mu">4</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><tr class="svelte-1uqs1mu mixed"><td class="svelte-1uqs1mu">Dates mixed up</td><!--[--><td class="n svelte-1uqs1mu">21</td><td class="n svelte-1uqs1mu">5</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><tr class="svelte-1uqs1mu"><td class="svelte-1uqs1mu">Appointment moved by itself</td><!--[--><td class="n svelte-1uqs1mu">32</td><td class="n svelte-1uqs1mu">–</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><tr class="svelte-1uqs1mu"><td class="svelte-1uqs1mu">Booking shows a different day</td><!--[--><td class="n svelte-1uqs1mu">10</td><td class="n svelte-1uqs1mu">–</td><td class="n svelte-1uqs1mu">–</td><!--]--></tr><!--]--></tbody></table><!----> <p>Intake’s tag does not help either. It guesses from the reporter’s browser, and the cause depends on
+the tenant. Reports that need a different fix need their own ticket, even when their subjects match.</p> <!--[0--><p class="stamp svelte-1280m42">desk ref <b class="svelte-1280m42">DR-W709-6S99</b></p><!--]--><!----><!----></main> <footer class="svelte-e2jw2j">Pages are written by people. Tables and charts are built from data at render time.</footer></div><!--]--><!--]--><!--]--><!----><!--]--><!--]--><!--]--><!----> <!--[-1--><!--]--><!--]-->
+			
+			<script>
+				{
+					__sveltekit_z1te8g = {
+						base: new URL("../../..", location).pathname.slice(0, -1),
+						version: "1794166750184"
+					};
+
+					const element = document.currentScript.parentElement;
+
+					import("../../../_app/immutable/entry/start.BPcehJr-.js").then(async (kit) => {
+						kit.init(__sveltekit_z1te8g);
+						const app = await import("../../../_app/immutable/entry/app.BbZ7SP4k.js");
+						kit.start(app, element, {
+							node_ids: [0, 5],
+							data: [null,null],
+							form: null,
+							error: null
+						});
+					});
+				}
+			</script>
+		</div>
+  </body>
+</html>
