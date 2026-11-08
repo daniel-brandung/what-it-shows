@@ -1,1 +1,5 @@
-{}
+{
+  "parser": { "number": 1, "url": "https://github.com/daniel-brandung/what-it-shows/issues/1" },
+  "hint": { "number": 2, "url": "https://github.com/daniel-brandung/what-it-shows/issues/2" },
+  "one-day": { "number": 3, "url": "https://github.com/daniel-brandung/what-it-shows/issues/3" }
+}
